@@ -228,19 +228,19 @@ export default function App() {
               <div style={{ display: "flex", gap: "10px" }}>
                 <button onClick={handleDebug} disabled={loading || !code.trim()} style={{
                   flex: 1, padding: "12px",
-                  background: loading ? "linear-gradient(135deg, #312e81, #3730a3)" : "linear-gradient(135deg, #4f46e5, #7c3aed)",
+                  background: loading ? "linear-gradient(135deg, #4f4a20, #5d2913)" : "linear-gradient(135deg, #1e2742, #0d5247)",
                   color: "#fff", border: "none", borderRadius: "10px",
                   cursor: loading ? "not-allowed" : "pointer", fontSize: "14px", fontWeight: 700,
                   display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
                  opacity: !code.trim() ? 0.4 : 1,
-                  boxShadow: loading ? "none" : "0 4px 24px #4f46e533"
+                  boxShadow: loading ? "none" : "0 4px 24px #5b682733"
                 }}>
                   {loading ? (
                     <>
-                      <span style={{ width: "14px", height: "14px", border: "2px solid #818cf8", borderTopColor: "transparent", borderRadius: "50%", display: "inline-block", animation: "spin 0.7s linear infinite" }} />
+                      <span style={{ width: "14px", height: "14px", border: "2px solid #2a401b", borderTopColor: "transparent", borderRadius: "50%", display: "inline-block", animation: "spin 0.7s linear infinite" }} />
                       Agent running...
                     </>
-                  ) : <>⚡ Debug It</>}
+                  ) : <> Debug It 🔧</>}
                 </button>
                 {hasResults && (
                   <button onClick={() => { dispatch(reset()); setLoadError("") }} style={{
