@@ -175,7 +175,7 @@ const [sessions, setSessions] = useState({ total: 0, solved: 0, languages: 0, av
   padding: "8px 58px",
   display: "flex",
   alignItems: "center",
-  gap: "32px",
+  gap: "150px",
   background: "#000000"
 }}>
 
