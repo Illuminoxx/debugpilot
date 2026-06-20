@@ -1,7 +1,0 @@
-services:
-  - type: web
-    name: debugpilot
-    runtime: docker
-    envVars:
-      - key: GROQ_API_KEY
-        sync: false
