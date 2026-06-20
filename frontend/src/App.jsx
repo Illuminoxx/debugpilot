@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { startDebug, addStep, setReview, setDone, addQuery, reset } from "./store/debugSlice"
 import CodeEditor from "./components/CodeEditor"
@@ -50,6 +50,8 @@ export default function App() {
   const [loading, setLoading] = useState(false)
   const [loadError, setLoadError] = useState("")
   const [langMenuOpen, setLangMenuOpen] = useState(false)
+const [sessions, setSessions] = useState({ total: 0, solved: 0, languages: 0, avgIter: "—" })
+
 
   const currentLang = LANGUAGES.find(l => l.id === language) || LANGUAGES[0]
 
@@ -112,6 +114,21 @@ export default function App() {
     }
   }
 
+  useEffect(() => {
+  fetch(`${API}/history`)
+    .then(r => r.json())
+    .then(data => {
+      if (!Array.isArray(data)) return
+      const solved = data.filter(s => s.status === "solved").length
+      const langs = new Set(data.map(s => s.language)).size
+      const avgIter = data.length
+        ? (data.reduce((a, s) => a + (s.iterations_taken || 1), 0) / data.length).toFixed(1)
+        : "—"
+      setSessions({ total: data.length, solved, languages: langs, avgIter })
+    })
+    .catch(() => {})
+}, [status])
+
   function loadSession(id) {
     fetch(`${API}/history/${id}`)
       .then(r => r.json())
@@ -152,6 +169,33 @@ export default function App() {
           ))}
         </div>
       </header>
+
+      <div style={{
+  borderBottom: "1px solid #0f172a",
+  padding: "8px 58px",
+  display: "flex",
+  alignItems: "center",
+  gap: "32px",
+  background: "#080b14"
+}}>
+
+
+  {[
+    { label: "Sessions", value: sessions.total },
+    { label: "Bugs Fixed", value: sessions.solved },
+    { label: "Languages", value: sessions.languages },
+    { label: "Avg Iterations", value: sessions.avgIter },
+  ].map(s => (
+    <div key={s.label} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+      <span style={{ color: "#1e3a5f", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.08em" }}>{s.label}</span>
+      <span style={{ color: "#4f46e5", fontWeight: 700, fontSize: "13px", fontFamily: "monospace" }}>{s.value ?? "—"}</span>
+    </div>
+  ))}
+  <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "6px" }}>
+    <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#22c55e", animation: "pulse 2s ease-in-out infinite" }} />
+    <span style={{ color: "#14532d", fontSize: "11px" }}>live</span>
+  </div>
+</div>
 
       <main style={{ flex: 1, maxWidth: "1400px", width: "100%", margin: "0 auto", padding: "20px 28px", boxSizing: "border-box" }}>
         {tab === "history" ? (
