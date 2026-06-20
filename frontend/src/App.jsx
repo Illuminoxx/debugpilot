@@ -176,7 +176,7 @@ const [sessions, setSessions] = useState({ total: 0, solved: 0, languages: 0, av
   display: "flex",
   alignItems: "center",
   gap: "32px",
-  background: "#080b14"
+  background: "#000000"
 }}>
 
 
