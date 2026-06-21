@@ -146,19 +146,19 @@ const [sessions, setSessions] = useState({ total: 0, solved: 0, languages: 0, av
   const hasResults = steps.length > 0 || status !== "idle"
 
   return (
-    <div style={{ minHeight: "100vh", background: "#080b14", color: "#e2e8f0", fontFamily: "'Inter', system-ui, sans-serif", display: "flex", flexDirection: "column" }}>
+    <div style={{ minHeight: "100vh", background: "#000000", color: "#e2e8f0", fontFamily: "'Inter', system-ui, sans-serif", display: "flex", flexDirection: "column" }}>
 
-      <header style={{ borderBottom: "1px solid #0f172a", padding: "0 28px", display: "flex", alignItems: "center", justifyContent: "space-between", height: "52px", background: "#080b14", position: "sticky", top: 0, zIndex: 100 }}>
+      <header style={{ borderBottom: "1px solid #0f172a", padding: "0 28px", display: "flex", alignItems: "center", justifyContent: "space-between", height: "52px", background: "#000000", position: "sticky", top: 0, zIndex: 100 }}>
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <div style={{ width: "28px", height: "28px", background: "linear-gradient(135deg, #4f46e5, #7c3aed)", borderRadius: "7px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px" }}>🤖</div>
           <span style={{ fontWeight: 800, fontSize: "16px", letterSpacing: "-0.03em" }}>
             Debug<span style={{ background: "linear-gradient(90deg, #818cf8, #a78bfa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Agent</span>
           </span>
-          <div style={{ width: "1px", height: "16px", background: "#1e293b" }} />
+          <div style={{ width: "1px", height: "16px", background: "#000000" }} />
           <span style={{ color: "#374151", fontSize: "11px", letterSpacing: "0.05em" }}>POWERED BY GROQ + LLAMA 3.3</span>
         </div>
 
-        <div style={{ display: "flex", gap: "2px", background: "#0f172a", padding: "3px", borderRadius: "8px" }}>
+        <div style={{ display: "flex", gap: "2px", background: "#000000", padding: "3px", borderRadius: "8px" }}>
           {["debug", "history"].map(t => (
             <button key={t} onClick={() => setTab(t)} style={{
               background: tab === t ? "#1e293b" : "transparent",
@@ -170,12 +170,14 @@ const [sessions, setSessions] = useState({ total: 0, solved: 0, languages: 0, av
         </div>
       </header>
 
+
+
       <div style={{
   borderBottom: "1px solid #0f172a",
   padding: "8px 58px",
   display: "flex",
   alignItems: "center",
-  gap: "150px",
+  gap: "145px",
   background: "#000000"
 }}>
 
