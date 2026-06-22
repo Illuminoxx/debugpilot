@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { startDebug, addStep, setReview, setDone, addQuery, reset } from "./store/debugSlice"
 import CodeEditor from "./components/CodeEditor"
@@ -50,8 +50,7 @@ export default function App() {
   const [loading, setLoading] = useState(false)
   const [loadError, setLoadError] = useState("")
   const [langMenuOpen, setLangMenuOpen] = useState(false)
-const [sessions, setSessions] = useState({ total: 0, solved: 0, languages: 0, avgIter: "—" })
-
+  const [sessions, setSessions] = useState({ total: 0, solved: 0, languages: 0, avgIter: "—" })
 
   const currentLang = LANGUAGES.find(l => l.id === language) || LANGUAGES[0]
 
@@ -114,20 +113,34 @@ const [sessions, setSessions] = useState({ total: 0, solved: 0, languages: 0, av
     }
   }
 
+  // ── Ctrl+Enter shortcut ──────────────────────────────────────────────────
+  const handleKeyDown = useCallback((e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+      e.preventDefault()
+      handleDebug()
+    }
+  }, [code, error, loading])
+
   useEffect(() => {
-  fetch(`${API}/history`)
-    .then(r => r.json())
-    .then(data => {
-      if (!Array.isArray(data)) return
-      const solved = data.filter(s => s.status === "solved").length
-      const langs = new Set(data.map(s => s.language)).size
-      const avgIter = data.length
-        ? (data.reduce((a, s) => a + (s.iterations_taken || 1), 0) / data.length).toFixed(1)
-        : "—"
-      setSessions({ total: data.length, solved, languages: langs, avgIter })
-    })
-    .catch(() => {})
-}, [status])
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [handleKeyDown])
+  // ────────────────────────────────────────────────────────────────────────
+
+  useEffect(() => {
+    fetch(`${API}/history`)
+      .then(r => r.json())
+      .then(data => {
+        if (!Array.isArray(data)) return
+        const solved = data.filter(s => s.status === "solved").length
+        const langs = new Set(data.map(s => s.language)).size
+        const avgIter = data.length
+          ? (data.reduce((a, s) => a + (s.iterations_taken || 1), 0) / data.length).toFixed(1)
+          : "—"
+        setSessions({ total: data.length, solved, languages: langs, avgIter })
+      })
+      .catch(() => {})
+  }, [status])
 
   function loadSession(id) {
     fetch(`${API}/history/${id}`)
@@ -155,7 +168,7 @@ const [sessions, setSessions] = useState({ total: 0, solved: 0, languages: 0, av
             Debug<span style={{ background: "linear-gradient(90deg, #818cf8, #a78bfa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Agent</span>
           </span>
           <div style={{ width: "1px", height: "16px", background: "#000000" }} />
-          <span style={{ color: "#374151", fontSize: "11px", letterSpacing: "0.05em" }}>POWERED BY GROQ + LLAMA 3.3</span>
+          <span style={{ color: "#374151", fontSize: "11px", letterSpacing: "0.05em" }} className="hide-mobile">POWERED BY GROQ + LLAMA 3.3</span>
         </div>
 
         <div style={{ display: "flex", gap: "2px", background: "#000000", padding: "3px", borderRadius: "8px" }}>
@@ -170,40 +183,37 @@ const [sessions, setSessions] = useState({ total: 0, solved: 0, languages: 0, av
         </div>
       </header>
 
-
-
       <div style={{
-  borderBottom: "1px solid #0f172a",
-  padding: "8px 58px",
-  display: "flex",
-  alignItems: "center",
-  gap: "145px",
-  background: "#000000"
-}}>
-
-
-  {[
-    { label: "Sessions", value: sessions.total },
-    { label: "Bugs Fixed", value: sessions.solved },
-    { label: "Languages", value: sessions.languages },
-    { label: "Avg Iterations", value: sessions.avgIter },
-  ].map(s => (
-    <div key={s.label} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-      <span style={{ color: "#1e3a5f", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.08em" }}>{s.label}</span>
-      <span style={{ color: "#4f46e5", fontWeight: 700, fontSize: "13px", fontFamily: "monospace" }}>{s.value ?? "—"}</span>
-    </div>
-  ))}
-  <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "6px" }}>
-    <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#22c55e", animation: "pulse 2s ease-in-out infinite" }} />
-    <span style={{ color: "#14532d", fontSize: "11px" }}>live</span>
-  </div>
-</div>
+        borderBottom: "1px solid #0f172a",
+        padding: "8px 58px",
+        display: "flex",
+        alignItems: "center",
+        gap: "145px",
+        background: "#000000",
+        overflowX: "auto",
+      }}>
+        {[
+          { label: "Sessions", value: sessions.total },
+          { label: "Bugs Fixed", value: sessions.solved },
+          { label: "Languages", value: sessions.languages },
+          { label: "Avg Iterations", value: sessions.avgIter },
+        ].map(s => (
+          <div key={s.label} style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
+            <span style={{ color: "#1e3a5f", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.08em" }}>{s.label}</span>
+            <span style={{ color: "#4f46e5", fontWeight: 700, fontSize: "13px", fontFamily: "monospace" }}>{s.value ?? "—"}</span>
+          </div>
+        ))}
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "6px", flexShrink: 0 }}>
+          <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#22c55e", animation: "pulse 2s ease-in-out infinite" }} />
+          <span style={{ color: "#14532d", fontSize: "11px" }}>live</span>
+        </div>
+      </div>
 
       <main style={{ flex: 1, maxWidth: "1400px", width: "100%", margin: "0 auto", padding: "20px 28px", boxSizing: "border-box" }}>
         {tab === "history" ? (
           <History onLoadSession={loadSession} apiUrl={API} />
         ) : (
-          <div style={{ display: "grid",gridTemplateColumns: "1fr 1fr", gap: "20px", alignItems: "start" }}>
+          <div className="main-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", alignItems: "start" }}>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
               <div style={{ background: "#0d1117", border: "1px solid #161b22", borderRadius: "12px", overflow: "hidden", flexShrink: 0 }}>
@@ -278,7 +288,7 @@ const [sessions, setSessions] = useState({ total: 0, solved: 0, languages: 0, av
                   color: "#fff", border: "none", borderRadius: "10px",
                   cursor: loading ? "not-allowed" : "pointer", fontSize: "14px", fontWeight: 700,
                   display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
-                 opacity: !code.trim() ? 0.4 : 1,
+                  opacity: !code.trim() ? 0.4 : 1,
                   boxShadow: loading ? "none" : "0 4px 24px #5b682733"
                 }}>
                   {loading ? (
@@ -286,7 +296,12 @@ const [sessions, setSessions] = useState({ total: 0, solved: 0, languages: 0, av
                       <span style={{ width: "14px", height: "14px", border: "2px solid #2a401b", borderTopColor: "transparent", borderRadius: "50%", display: "inline-block", animation: "spin 0.7s linear infinite" }} />
                       Agent running...
                     </>
-                  ) : <> Debug It 🔧</>}
+                  ) : (
+                    <>
+                      Debug It 🔧
+                      <span style={{ fontSize: "10px", color: "#4a6a5a", marginLeft: "4px", fontWeight: 400, letterSpacing: "0.02em" }}>Ctrl+↵</span>
+                    </>
+                  )}
                 </button>
                 {hasResults && (
                   <button onClick={() => { dispatch(reset()); setLoadError("") }} style={{
@@ -363,6 +378,16 @@ const [sessions, setSessions] = useState({ total: 0, solved: 0, languages: 0, av
         ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
         textarea:focus { outline: none; }
         input:focus { outline: 1px solid #4f46e5 !important; }
+
+        /* ── Responsive ───────────────────────────────────────────── */
+        @media (max-width: 768px) {
+          .main-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .hide-mobile {
+            display: none !important;
+          }
+        }
       `}</style>
     </div>
   )
